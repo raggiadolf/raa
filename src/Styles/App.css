@@ -1,0 +1,61 @@
+.App {
+  min-height: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.App-logo {
+  height: 50px;
+  margin-left: 3rem;
+  animation: fadein .75s ease forwards;
+  opacity: .75;
+}
+
+.App-logo:hover {
+  animation: fadeout-slight .75s ease forwards;
+  animation-delay: 0s;
+}
+
+#Bike {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 50px;
+}
+
+.Prankster-logo {
+  height: 50px;
+  margin-left: 2rem;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.logos-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+@keyframes fadein {
+  from { opacity: .75; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeout-slight {
+  from { opacity: 1; }
+  to   { opacity: .75; }
+}
+
+/*.logos-container a:nth-child(1) img { animation-delay: 3s }*/
+/*.logos-container a:nth-child(2) img { animation-delay: 5s }*/
+/*.logos-container a:nth-child(3) img { animation-delay: 7s }*/
