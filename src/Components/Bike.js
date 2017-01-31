@@ -85,7 +85,7 @@ class Bike extends Component {
     ctx.fill();
   }
 
-  drawBike() {
+  draw() {
     const canvas = this.refs.canvas
     const ctx = canvas.getContext('2d');
     //const { canvasWidth, canvasHeight } = this.resizeCanvas(canvas);
@@ -98,7 +98,7 @@ class Bike extends Component {
 
     // change speed depending on what state we're in
     (this.state.moveLeft || this.state.moveRight) && this.setState({ speed: Math.min(this.state.speed + .1, this.state.maxSpeed) });
-    this.state.breaking && this.setState({ speed: Math.max(this.state.speed - .3, 0) });
+    this.state.braking && this.setState({ speed: Math.max(this.state.speed - .3, 0) });
     (this.state.slowDownLeft || this.state.slowDownRight) && this.setState({ speed: Math.max(this.state.speed - .1, 0) });
 
     // Move left/right depending on state
@@ -114,30 +114,40 @@ class Bike extends Component {
       if (this.state.speed === 0) this.setState({ slowDownRight: false });
     }
 
-    if ((newX + (wheelRadius * 4)) <= canvasWidth && (newX - wheelRadius) >= 0) {
-      this.setState({ x: newX });
-    } else if ((newX + (wheelRadius * 4)) > canvasWidth) {
-      // Move to left edge of canvas
-      this.setState({ x: canvasWidth - (wheelRadius * 4) });
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    if ((newX + (wheelRadius * 4)) > canvasWidth && (newX + (wheelRadius * 4)) < canvasWidth + (wheelRadius * 4) + 10) { // front wheel going off left edge, draw new bike on rhs
+      this.drawBike(ctx, canvasWidth - this.state.x + canvasWidth, canvasHeight - 15, wheelRadius);
+    } else if (newX + (wheelRadius * 4) > canvasWidth + (wheelRadius * 4) + 10) { // bike completely off lhs, move bike to rhs
+      newX = this.state.x - canvasWidth;
+    } else if ((newX - wheelRadius) < 0 && (newX - wheelRadius) > 0 - (wheelRadius * 6) + 10) { // rear wheel going off right edge, draw new bike on lhs
+      this.drawBike(ctx, 0 - this.state.x, canvasHeight - 15, wheelRadius);
+    } else if ((newX - wheelRadius) < 0 - (wheelRadius * 6) + 10) {
+      newX = this.state.x + canvasWidth;
     }
 
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    this.setState({ x: newX });
 
+    this.drawBike(ctx, canvasWidth - this.state.x, canvasHeight - 15, wheelRadius);
+
+    window.requestAnimationFrame(() => { this.draw() });
+  }
+
+  drawBike(ctx, rearX, rearY, wheelRadius) {
     const rearWheel = {
-      x: canvasWidth - this.state.x,
-      y: canvasHeight - 15,
+      x: rearX,
+      y: rearY,
       radius: wheelRadius,
       startAngle: 0,
       endAngle: Math.PI * 2
     };
 
     const frontWheel = {
-      x: rearWheel.x - ((wheelRadius / 2) * 2) - 20,
+      x: rearWheel.x - wheelRadius - 20,
       y: rearWheel.y,
       radius: wheelRadius,
       startAngle: 0,
       endAngle: Math.PI * 2
-    }
+    };
 
     // Draw front wheel
     ctx.beginPath();
@@ -149,24 +159,22 @@ class Bike extends Component {
     ctx.stroke();
 
     this.drawFrame(ctx, frontWheel, rearWheel, wheelRadius);
-
-    window.requestAnimationFrame(() => { this.drawBike() });
   }
 
   handleKeyPress(e) {
     switch(e.key) {
       case "ArrowLeft":
         if (this.state.moveRight || this.state.slowDownRight) {
-          this.setState({ breaking: true });
+          this.setState({ braking: true });
         } else {
-          this.setState({ moveLeft: true, breaking: false, slowDownLeft: false });
+          this.setState({ moveLeft: true, braking: false, slowDownLeft: false });
         }
         break;
       case "ArrowRight":
         if (this.state.moveLeft || this.state.slowDownLeft) {
-          this.setState({ breaking: true });
+          this.setState({ braking: true });
         } else {
-          this.setState({ moveRight: true, breaking: false, slowDownRight: false });
+          this.setState({ moveRight: true, braking: false, slowDownRight: false });
         }
         break;
       default:
@@ -177,10 +185,10 @@ class Bike extends Component {
   handleKeyUp(e) {
     switch(e.key) {
       case "ArrowLeft":
-        this.setState({ moveLeft: false, slowDownLeft: true, breaking: false });
+        this.setState({ moveLeft: false, slowDownLeft: true, braking: false });
         break;
       case "ArrowRight":
-        this.setState({ moveRight: false, slowDownRight: true, breaking: false });
+        this.setState({ moveRight: false, slowDownRight: true, braking: false });
         break;
       default:
         break;
@@ -205,7 +213,7 @@ class Bike extends Component {
 
   componentDidMount() {
     this.resizeCanvas();
-    this.drawBike();
+    this.draw();
   }
 
   render() {
