@@ -88,7 +88,6 @@ class Bike extends Component {
   draw() {
     const canvas = this.refs.canvas
     const ctx = canvas.getContext('2d');
-    //const { canvasWidth, canvasHeight } = this.resizeCanvas(canvas);
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     const wheelRadius = this.state.wheelRadius;
@@ -121,7 +120,7 @@ class Bike extends Component {
       newX = this.state.x - canvasWidth;
     } else if ((newX - wheelRadius) < 0 && (newX - wheelRadius) > 0 - (wheelRadius * 6) + 10) { // rear wheel going off right edge, draw new bike on lhs
       this.drawBike(ctx, 0 - this.state.x, canvasHeight - 15, wheelRadius);
-    } else if ((newX - wheelRadius) < 0 - (wheelRadius * 6) + 10) {
+    } else if ((newX - wheelRadius) < 0 - (wheelRadius * 6) + 10) { // bike completely off rhs, move bike to lhs
       newX = this.state.x + canvasWidth;
     }
 
@@ -151,10 +150,13 @@ class Bike extends Component {
 
     // Draw front wheel
     ctx.beginPath();
+    ctx.lineWidth = 1.5;
     ctx.arc(frontWheel.x, frontWheel.y, frontWheel.radius, frontWheel.startAngle, frontWheel.endAngle, true);
     ctx.stroke();
+
     // Draw rear wheel
     ctx.beginPath();
+    ctx.lineWidth = 1.5
     ctx.arc(rearWheel.x, rearWheel.y, rearWheel.radius, rearWheel.startAngle, rearWheel.endAngle, true);
     ctx.stroke();
 

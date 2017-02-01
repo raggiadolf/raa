@@ -7,9 +7,12 @@
 
 .App-logo {
   height: 50px;
-  margin-left: 3rem;
   animation: fadein .75s ease forwards;
   opacity: .75;
+}
+
+.logo-anchor {
+  margin-left: 3rem;
 }
 
 .App-logo:hover {
@@ -56,7 +59,3 @@
   from { opacity: 1; }
   to   { opacity: .75; }
 }
-
-/*.logos-container a:nth-child(1) img { animation-delay: 3s }*/
-/*.logos-container a:nth-child(2) img { animation-delay: 5s }*/
-/*.logos-container a:nth-child(3) img { animation-delay: 7s }*/
