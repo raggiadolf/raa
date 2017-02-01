@@ -164,15 +164,15 @@ class Bike extends Component {
   }
 
   handleKeyPress(e) {
-    switch(e.key) {
-      case "ArrowLeft":
+    switch(e.keyCode) {
+      case 37:
         if (this.state.moveRight || this.state.slowDownRight) {
           this.setState({ braking: true });
         } else {
           this.setState({ moveLeft: true, braking: false, slowDownLeft: false });
         }
         break;
-      case "ArrowRight":
+      case 39:
         if (this.state.moveLeft || this.state.slowDownLeft) {
           this.setState({ braking: true });
         } else {
@@ -185,11 +185,11 @@ class Bike extends Component {
   }
 
   handleKeyUp(e) {
-    switch(e.key) {
-      case "ArrowLeft":
+    switch(e.keyCode) {
+      case 37:
         this.setState({ moveLeft: false, slowDownLeft: true, braking: false });
         break;
-      case "ArrowRight":
+      case 39:
         this.setState({ moveRight: false, slowDownRight: true, braking: false });
         break;
       default:
