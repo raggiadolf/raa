@@ -3,14 +3,27 @@ import React, { Component } from 'react';
 class Bike extends Component {
   constructor(props) {
     super(props);
+    const whlRd = 10;
     this.state = {
       x: 30,
       speed: 1,
       maxSpeed: 10,
       minSpeed: 1,
-      wheelRadius: 10,
-      stravaClicked: false
+      wheelRadius: whlRd,
+      stravaClicked: false,
+      path: []
     }
+
+    this.generateRandomPath(3000);
+  }
+
+  generateRandomPath(noPoints, canvasHeight) {
+    const points = [];
+    for(let i = 0; i < noPoints; i++) {
+      const x = canvasHeight - 14;
+      points.push(x);
+    }
+    return points;
   }
 
   trackCursor(e) {
@@ -46,6 +59,8 @@ class Bike extends Component {
         canvasHeight !== displayHeight) {
           canvas.width = displayWidth;
           canvas.height = displayHeight;
+          const path = this.generateRandomPath(this.refs.canvas.width, this.refs.canvas.height);
+          this.setState({ path: path });
         }
 
     return {
@@ -85,9 +100,19 @@ class Bike extends Component {
     ctx.fill();
   }
 
+  drawPixel(x, y, r, g, b, a, canvasData, canvasWidth) {
+    const index = (x + y * canvasWidth) * 4;
+
+    canvasData.data[index + 0] = r;
+    canvasData.data[index + 1] = g;
+    canvasData.data[index + 2] = b;
+    canvasData.data[index + 3] = a;
+  }
+
   draw() {
     const canvas = this.refs.canvas
     const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#424242';
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     const wheelRadius = this.state.wheelRadius;
@@ -128,21 +153,28 @@ class Bike extends Component {
 
     this.drawBike(ctx, canvasWidth - this.state.x, canvasHeight - 15, wheelRadius);
 
+    let canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+    for(let [index, value] of this.state.path.entries()) {
+      this.drawPixel(index, value + wheelRadius, 0, 0, 0, 255, canvasData, canvasWidth);
+    }
+    ctx.putImageData(canvasData, 0, 0);
+
     window.requestAnimationFrame(() => { this.draw() });
   }
 
   drawBike(ctx, rearX, rearY, wheelRadius) {
     const rearWheel = {
       x: rearX,
-      y: rearY,
+      y: this.state.path[Math.floor(rearX)],
       radius: wheelRadius,
       startAngle: 0,
       endAngle: Math.PI * 2
     };
 
+    const frontX = rearWheel.x - wheelRadius - 20;
     const frontWheel = {
-      x: rearWheel.x - wheelRadius - 20,
-      y: rearWheel.y,
+      x: frontX,
+      y: this.state.path[Math.floor(frontX)],
       radius: wheelRadius,
       startAngle: 0,
       endAngle: Math.PI * 2
@@ -215,6 +247,8 @@ class Bike extends Component {
 
   componentDidMount() {
     this.resizeCanvas();
+    const path = this.generateRandomPath(this.refs.canvas.width, this.refs.canvas.height);
+    this.setState({ path: path });
     this.draw();
   }
 
