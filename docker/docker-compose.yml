@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    build: ./server
+    container_name: "raaserver"
+  proxy:
+    build: ./nginx
+    links: 
+      - web
+    ports:
+      - "80:80"
