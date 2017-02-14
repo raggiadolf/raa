@@ -17,19 +17,35 @@ class Bike extends Component {
   }
 
   trackCursor(e) {
-    const bikeWidth = (this.state.wheelRadius * 4) + 15;
-    const bikeHeight = (this.state.wheelRadius * 2) + 15;
-    const bikeY = e.pageY - this.refs.canvas.offsetTop;
-    const bikeX = e.pageX - (this.refs.canvas.width - this.state.x - bikeWidth);
-    
-    if ((bikeY >= 15 && bikeY <= 15 + bikeHeight) &&
-        (bikeX >= 0 && bikeX <= bikeWidth + this.state.wheelRadius)) {
+    const bikeX = this.refs.canvas.width - this.state.x;
+    const bikeY = this.state.bikePath[Math.floor(bikeX)];
+
+    if (this.inXBounds(e.pageX, bikeX) &&
+        this.inYBounds(e.pageY, bikeY)) {
       document.body.style.cursor = "pointer";
       this.setState({ stravaClicked: true });
     } else {
       document.body.style.cursor = "";
       this.setState({ stravaClicked: false });
     }
+  }
+
+  // bikeX is the width of the canvas minus the current x state of the bike
+  // so we simply check whether pageX is between bikeX + half a wheel
+  // (since the bike's x coordinates originate in the rear hub) and bikeX -
+  // 2 wheels (catching the gap between both wheels as well)
+  inXBounds(pageX, bikeX) {
+    return pageX <= bikeX + this.state.wheelRadius &&
+           pageX >= bikeX - (this.state.wheelRadius * 4);
+  }
+
+  // Subtracting the y position of the bike (gotten from this.state.bikePath) from pageY gives us
+  // a good enough placement of where the bike is vertically.
+  // We check wether the cursor is between this y position and the same y position + the height of the bike
+  // (roughly two wheels + 15px, this isn't science yo.)
+  inYBounds(pageY, bikeY) {
+    return pageY - bikeY <= window.innerHeight - this.refs.canvas.height &&
+           pageY - bikeY + (this.state.wheelRadius * 2 + 15) >= window.innerHeight - this.refs.canvas.height;
   }
 
   mouseClicked(e) {
