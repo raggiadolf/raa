@@ -83,7 +83,7 @@ class Bike extends Component {
     ctx.lineTo(rearWheel.x - wheelRadius + angle, rearWheel.y - 15); // front end of seat stays / top of seat tube
     ctx.lineTo(rearWheel.x - wheelRadius + 1 + angle, rearWheel.y - 23); // top of seatpost
     ctx.moveTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2); // Move to bottom bracket before drawing downtube
-    ctx.lineTo(frontWheel.x + 5, frontWheel.y - 15); // Top of downtube / top of headtube
+    ctx.lineTo(frontWheel.x + 5 + angle, frontWheel.y - 15); // Top of downtube / top of headtube
 
     ctx.lineWidth = 1.5;
     ctx.stroke();
