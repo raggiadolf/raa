@@ -77,12 +77,12 @@ class Bike extends Component {
     ctx.lineTo(frontWheel.x + 5 + angle, frontWheel.y - 20); // top of head tube
     ctx.lineTo(frontWheel.x + angle, frontWheel.y - 20); // front end of handebars (before drops)
     ctx.moveTo(frontWheel.x + 5 + angle, frontWheel.y - 15); // Move to top of headtube before starting top tube (slightly lower, because aero)
-    ctx.lineTo(rearWheel.x - wheelRadius + angle, rearWheel.y - 15); // back end of top tube / top of seat tube
-    ctx.lineTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2); // Bottom of seat tube / Bottom bracket
+    ctx.lineTo(rearWheel.x - wheelRadius + angle, rearWheel.y - 15 - angle); // back end of top tube / top of seat tube
+    ctx.lineTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2 - angle); // Bottom of seat tube / Bottom bracket
     ctx.lineTo(rearWheel.x, rearWheel.y); // back end of chain stays
-    ctx.lineTo(rearWheel.x - wheelRadius + angle, rearWheel.y - 15); // front end of seat stays / top of seat tube
-    ctx.lineTo(rearWheel.x - wheelRadius + 1 + angle, rearWheel.y - 23); // top of seatpost
-    ctx.moveTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2); // Move to bottom bracket before drawing downtube
+    ctx.lineTo(rearWheel.x - wheelRadius + angle, rearWheel.y - 15 - angle); // front end of seat stays / top of seat tube
+    ctx.lineTo(rearWheel.x - wheelRadius + 1 + angle, rearWheel.y - 23 - angle); // top of seatpost
+    ctx.moveTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2 - angle); // Move to bottom bracket before drawing downtube
     ctx.lineTo(frontWheel.x + 5 + angle, frontWheel.y - 15); // Top of downtube / top of headtube
 
     ctx.lineWidth = 1.5;
@@ -95,9 +95,9 @@ class Bike extends Component {
 
     // Draw saddle
     ctx.beginPath(); // Simple triangle
-    ctx.moveTo(rearWheel.x - wheelRadius + 5 + angle, rearWheel.y - 23); // Top right of saddle
-    ctx.lineTo(rearWheel.x - wheelRadius - 5 + angle, rearWheel.y - 23); // Top left of saddle
-    ctx.lineTo(rearWheel.x - wheelRadius + 3 + angle, rearWheel.y - 20); // Bottom of saddle
+    ctx.moveTo(rearWheel.x - wheelRadius + 5 + angle, rearWheel.y - 23 - angle); // Top right of saddle
+    ctx.lineTo(rearWheel.x - wheelRadius - 5 + angle, rearWheel.y - 23 - angle); // Top left of saddle
+    ctx.lineTo(rearWheel.x - wheelRadius + 3 + angle, rearWheel.y - 20 - angle); // Bottom of saddle
     ctx.fill();
 
     // Draw spokes
