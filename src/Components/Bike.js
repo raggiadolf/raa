@@ -11,7 +11,8 @@ class Bike extends Component {
       minSpeed: 1,
       wheelRadius: whlRd,
       stravaClicked: false,
-      spoke: 0
+      spoke: 0,
+      bikePath: []
     }
   }
 
@@ -44,11 +45,23 @@ class Bike extends Component {
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
 
-    if (canvasWidth !== displayWidth ||
-        canvasHeight !== displayHeight) {
-          canvas.width = displayWidth;
-          canvas.height = displayHeight;
-        }
+    if (canvasWidth !== displayWidth || canvasHeight !== displayHeight) {
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+    }
+
+    const newPath = [];
+    const increase = 90 / 180 * Math.PI / 144;
+    let counter = 0;
+    for(let i = 0; i < canvas.width; i++) {
+      let y = 180 - Math.sin(counter) * 14;
+      counter += increase;
+      newPath.push(y);
+    }
+
+    this.setState({
+      bikePath: newPath
+    });
 
     return {
       canvasWidth: canvas.width,
@@ -63,11 +76,11 @@ class Bike extends Component {
     ctx.lineTo(frontWheel.x + 5, frontWheel.y - 20); // top of head tube
     ctx.lineTo(frontWheel.x, frontWheel.y - 20); // front end of handebars (before drops)
     ctx.moveTo(frontWheel.x + 5, frontWheel.y - 15); // Move to top of headtube before starting top tube (slightly lower, because aero)
-    ctx.lineTo(rearWheel.x - wheelRadius, frontWheel.y - 15); // back end of top tube / top of seat tube
+    ctx.lineTo(rearWheel.x - wheelRadius, rearWheel.y - 15); // back end of top tube / top of seat tube
     ctx.lineTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2); // Bottom of seat tube / Bottom bracket
     ctx.lineTo(rearWheel.x, rearWheel.y); // back end of chain stays
-    ctx.lineTo(rearWheel.x - wheelRadius, frontWheel.y - 15); // front end of seat stays / top of seat tube
-    ctx.lineTo(rearWheel.x - wheelRadius + 1, frontWheel.y - 23); // top of seatpost
+    ctx.lineTo(rearWheel.x - wheelRadius, rearWheel.y - 15); // front end of seat stays / top of seat tube
+    ctx.lineTo(rearWheel.x - wheelRadius + 1, rearWheel.y - 23); // top of seatpost
     ctx.moveTo(rearWheel.x - wheelRadius - 2, rearWheel.y + 2); // Move to bottom bracket before drawing downtube
     ctx.lineTo(frontWheel.x + 5, frontWheel.y - 15); // Top of downtube / top of headtube
 
@@ -81,12 +94,14 @@ class Bike extends Component {
 
     // Draw saddle
     ctx.beginPath(); // Simple triangle
-    ctx.moveTo(rearWheel.x - wheelRadius + 5, frontWheel.y - 23); // Top right of saddle
-    ctx.lineTo(rearWheel.x - wheelRadius - 5, frontWheel.y - 23); // Top left of saddle
-    ctx.lineTo(rearWheel.x - wheelRadius + 3, frontWheel.y - 20); // Bottom of saddle
+    ctx.moveTo(rearWheel.x - wheelRadius + 5, rearWheel.y - 23); // Top right of saddle
+    ctx.lineTo(rearWheel.x - wheelRadius - 5, rearWheel.y - 23); // Top left of saddle
+    ctx.lineTo(rearWheel.x - wheelRadius + 3, rearWheel.y - 20); // Bottom of saddle
     ctx.fill();
 
     // Draw spokes
+    // Picks a place on the wheel according to this.state.spoke
+    // spoke in state is updated when the bike moves left or right
     ctx.lineWidth = .5;
     ctx.moveTo(frontWheel.x, frontWheel.y);
     let fsx = frontWheel.x + wheelRadius * Math.cos(this.state.spoke * Math.PI / 180);
@@ -94,6 +109,7 @@ class Bike extends Component {
     ctx.lineTo(fsx, fsy);
     ctx.stroke();
 
+    ctx.lineWidth = .5;
     ctx.moveTo(rearWheel.x, rearWheel.y);
     let rsx = rearWheel.x + wheelRadius * Math.cos(this.state.spoke * Math.PI / 180);
     let rsy = rearWheel.y + wheelRadius * Math.sin(this.state.spoke * Math.PI / 180);
@@ -131,12 +147,20 @@ class Bike extends Component {
     }
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    // draw the path from this.state.bikePath
+    // canvas doesn't really allow you to draw single pixels without an
+    // overly complex way, so we draw 1x1 rectangles for each path entry instead
+    for(let [i, p] of this.state.bikePath.entries()) {
+      ctx.fillRect(i, p, 1, 1);
+    }
+
     if ((newX + (wheelRadius * 4)) > canvasWidth && (newX + (wheelRadius * 4)) < canvasWidth + (wheelRadius * 4) + 10) { // front wheel going off left edge, draw new bike on rhs
-      this.drawBike(ctx, canvasWidth - this.state.x + canvasWidth, canvasHeight - 15, wheelRadius);
+      this.drawBike(ctx, canvasWidth - this.state.x + canvasWidth, wheelRadius, canvasWidth);
     } else if (newX + (wheelRadius * 4) > canvasWidth + (wheelRadius * 4) + 10) { // bike completely off lhs, move bike to rhs
       newX = this.state.x - canvasWidth;
     } else if ((newX - wheelRadius) < 0 && (newX - wheelRadius) > 0 - (wheelRadius * 6) + 10) { // rear wheel going off right edge, draw new bike on lhs
-      this.drawBike(ctx, 0 - this.state.x, canvasHeight - 15, wheelRadius);
+      this.drawBike(ctx, 0 - this.state.x, wheelRadius, canvasWidth);
     } else if ((newX - wheelRadius) < 0 - (wheelRadius * 6) + 10) { // bike completely off rhs, move bike to lhs
       newX = this.state.x + canvasWidth;
     }  
@@ -144,12 +168,17 @@ class Bike extends Component {
     let newSpoke = this.state.spoke + (this.state.x - newX);
     this.setState({ x: newX, spoke: newSpoke });
 
-    this.drawBike(ctx, canvasWidth - this.state.x, canvasHeight - 15, wheelRadius);
+    this.drawBike(ctx, canvasWidth - this.state.x, wheelRadius, canvasWidth);
 
     window.requestAnimationFrame(() => { this.draw() });
   }
 
-  drawBike(ctx, rearX, rearY, wheelRadius) {
+  drawBike(ctx, rearX, wheelRadius, canvasWidth) {
+    // Catch the cases where the bike is flipped around the screen
+    let rearY = this.state.bikePath[Math.floor(rearX)] - wheelRadius || this.state.bikePath[this.state.bikePath.length - 1] - wheelRadius;
+    if (rearX < 0) {
+      rearY = this.state.bikePath[0] - wheelRadius;
+    }
     const rearWheel = {
       x: rearX,
       y: rearY,
@@ -158,9 +187,14 @@ class Bike extends Component {
       endAngle: Math.PI * 2
     };
 
+    // Catch the cases where the bike is flipped around the screen
+    let frontY = this.state.bikePath[Math.floor(rearWheel.x - wheelRadius - 20)] - wheelRadius || this.state.bikePath[0] - wheelRadius;
+    if (rearX - (wheelRadius * 5) + 20 > canvasWidth) {
+      frontY = this.state.bikePath[this.state.bikePath.length - 1] - wheelRadius;
+    }
     const frontWheel = {
       x: rearWheel.x - wheelRadius - 20,
-      y: rearY,
+      y: frontY,
       radius: wheelRadius,
       startAngle: 0,
       endAngle: Math.PI * 2
