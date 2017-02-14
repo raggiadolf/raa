@@ -11,6 +11,7 @@ class Bike extends Component {
       minSpeed: 1,
       wheelRadius: whlRd,
       stravaClicked: false,
+      spoke: 0
     }
   }
 
@@ -84,6 +85,20 @@ class Bike extends Component {
     ctx.lineTo(rearWheel.x - wheelRadius - 5, frontWheel.y - 23); // Top left of saddle
     ctx.lineTo(rearWheel.x - wheelRadius + 3, frontWheel.y - 20); // Bottom of saddle
     ctx.fill();
+
+    // Draw spokes
+    ctx.lineWidth = .5;
+    ctx.moveTo(frontWheel.x, frontWheel.y);
+    let fsx = frontWheel.x + wheelRadius * Math.cos(this.state.spoke * Math.PI / 180);
+    let fsy = frontWheel.y + wheelRadius * Math.sin(this.state.spoke * Math.PI / 180);
+    ctx.lineTo(fsx, fsy);
+    ctx.stroke();
+
+    ctx.moveTo(rearWheel.x, rearWheel.y);
+    let rsx = rearWheel.x + wheelRadius * Math.cos(this.state.spoke * Math.PI / 180);
+    let rsy = rearWheel.y + wheelRadius * Math.sin(this.state.spoke * Math.PI / 180);
+    ctx.lineTo(rsx, rsy);
+    ctx.stroke();
   }
 
   draw() {
@@ -124,9 +139,10 @@ class Bike extends Component {
       this.drawBike(ctx, 0 - this.state.x, canvasHeight - 15, wheelRadius);
     } else if ((newX - wheelRadius) < 0 - (wheelRadius * 6) + 10) { // bike completely off rhs, move bike to lhs
       newX = this.state.x + canvasWidth;
-    }
+    }  
 
-    this.setState({ x: newX });
+    let newSpoke = this.state.spoke + (this.state.x - newX);
+    this.setState({ x: newX, spoke: newSpoke });
 
     this.drawBike(ctx, canvasWidth - this.state.x, canvasHeight - 15, wheelRadius);
 
