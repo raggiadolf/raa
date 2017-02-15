@@ -6,7 +6,8 @@ class Bike extends Component {
     const whlRd = 10;
     this.state = {
       x: 30,
-      speed: 1,
+      speed: 5,
+      slowDownLeft: true,
       maxSpeed: 10,
       minSpeed: 1,
       wheelRadius: whlRd,
