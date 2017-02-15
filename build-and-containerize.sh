@@ -15,4 +15,4 @@ docker rm -f raaserver
 
 echo 
 echo "Building and starting raaserver docker container"
-docker-compose up -d
+docker-compose up --build -d
